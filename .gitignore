@@ -1,7 +1,3 @@
-# Compiler notes/dev notes
-NOTES.md
-DPC.md
-
 # Compiled Lua sources
 luac.out
 
@@ -95,6 +91,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+tests/
 
 # Translations
 *.mo
