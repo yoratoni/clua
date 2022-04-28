@@ -1,2 +1,3 @@
+---
 compilerOptions:
-    removeComments: false
+  removeComments: false

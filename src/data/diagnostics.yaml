@@ -1,4 +1,4 @@
 ---
 d1001:
-  category: "Error"
+  logType: "Error"
   message: "test"

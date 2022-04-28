@@ -2,6 +2,7 @@ from copy import deepcopy
 from typing import Union
 from pathlib import Path
 
+from compiler import Logger
 from compiler import Paths
 
 import yaml
@@ -44,7 +45,7 @@ class Loader:
 
     
     @staticmethod
-    def load_config(project_path: Path, filename: str = "clua.config.yaml") -> Union[dict, None]:
+    def load_configs(project_path: Path, filename: str = "clua.config.yaml") -> Union[dict, None]:
         """Loads one or multiple user project config files and returns them into a dict
         where the keys are the project directory names where the file is located (localized configs).
 
@@ -61,14 +62,13 @@ class Loader:
         """
         
         # User project config file
-        result = Paths.search_file_in_glob(project_path, filename)
+        result = Paths.search_by_filename(project_path, filename, True)
 
         # Default config replacement
         if result is None:
             result = [Path.cwd().joinpath("src", "data", filename)]
 
-        res_dict = {}
-        
+        res_dict = {} 
         for path in result:
             config_content = Loader.load_yaml(path)
             
@@ -76,3 +76,32 @@ class Loader:
                 res_dict[path.parent] = deepcopy(config_content)
                 
         return res_dict
+
+
+    @staticmethod
+    def load_diagnostics(filename: str = "diagnostics.yaml") -> Union[dict, None]:
+        """Loads the internal diagnostics YAML file.
+        
+        Note:
+            Raise an internal log if not found but do not close the compiler instance.
+
+        Args:
+            filename (str, optional): The diagnostics YAML filename.
+
+        Returns:
+            Union[dict, None]: Contains all the diagnostics or None if not found.
+        """
+        
+        # Internal diagnostics file
+        result = Paths.search_by_filename(Path.cwd(), filename, True)
+        
+        if result is None:
+            Logger.custom_log(
+                Logger.LogTypes.C_FILE_NOT_FOUND,
+                "Diagnostics are unavailable, diagnostics original file not found.", 
+                True
+            )
+        elif isinstance(result, list):
+            return Loader.load_yaml(result[0])
+            
+        return None
