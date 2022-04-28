@@ -1,4 +1,4 @@
-from distutils.command.config import config
+from copy import deepcopy
 from typing import Union
 from pathlib import Path
 
@@ -12,6 +12,9 @@ class Loader:
     def load_yaml(yaml_path: Path) -> Union[dict, None]:
         """Loads a YAML file based on its path,
         acts as a universal YAML file loader wrapper.
+
+        Note:
+            Empty files are included but with an empty dict.
 
         Args:
             yaml_path (Path): The path of the YAML file to load.
@@ -28,6 +31,10 @@ class Loader:
                     
                     if isinstance(content, dict):
                         return content
+                    
+                    # Include empty files
+                    if content is None:
+                        return {}
                 
                 # Ensure default loading
                 except yaml.YAMLError:
@@ -58,15 +65,14 @@ class Loader:
 
         # Default config replacement
         if result is None:
-            result = Paths.search_file_in_glob(Path.cwd(), filename)
-            
-            # Last default config file verification
-            if result is None:
-                return None  # DPC0001
+            result = [Path.cwd().joinpath("src", "data", filename)]
 
         res_dict = {}
         
         for path in result:
-            res_dict[path.parent] = Loader.load_yaml(path)
+            config_content = Loader.load_yaml(path)
+            
+            if config_content is not None:
+                res_dict[path.parent] = deepcopy(config_content)
                 
         return res_dict
