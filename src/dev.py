@@ -1,7 +1,11 @@
-from compiler import Loader
+from compiler import Paths, Cache, Loader
 from pathlib import Path
 
-compiler_path = Path.cwd().joinpath("src")
-test_project_path = Path.joinpath(Path.cwd().joinpath("tests", "clua"))
+import xxhash
 
-print(Loader.load_diagnostics())
+
+example_dir_path = Path.joinpath(Path.cwd(), "tests", "clua")
+
+Loader.loader()
+
+print(Cache.Compiler.data["diagnostic_messages"])

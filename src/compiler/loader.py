@@ -1,107 +1,96 @@
+from regex import F
+from compiler import Paths, Files, Cache
+
 from copy import deepcopy
 from typing import Union
 from pathlib import Path
 
-from compiler import Logger
-from compiler import Paths
-
-import yaml
+import sys
 
 
 class Loader:
     @staticmethod
-    def load_yaml(yaml_path: Path) -> Union[dict, None]:
-        """Loads a YAML file based on its path,
-        acts as a universal YAML file loader wrapper.
-
-        Note:
-            Empty files are included but with an empty dict.
+    def load_compiler_tree(
+        data_dir_path: Path,
+        included_extensions: list[str] = [".yaml"]
+    ) -> Union[list[Path], None]:
+        """Loads the compiler tree with whitelisted file extensions,
+        saves it into the Compiler sub-class cache and returns the list of found paths.
 
         Args:
-            yaml_path (Path): The path of the YAML file to load.
+            data_dir_path (Path): Path to the data directory.
+            included_extensions (list[str], optional): File extensions included into the tree.
 
         Returns:
-            Union[dict, None]: Content of the YAML file formatted as a string,
-                or None if file not found/yaml error.
+            list[Path]: The result list of paths after the scanning of the compiler dir.
         """
+
+        # Data directory research
+        compiler_tree = Paths.search_by_extensions(data_dir_path, included_extensions, True)
         
-        if yaml_path is not None and yaml_path.exists():
-            with open(yaml_path, "r") as yaml_file:
-                try:
-                    content = yaml.load(yaml_file, yaml.FullLoader)
-                    
-                    if isinstance(content, dict):
-                        return content
-                    
-                    # Include empty files
-                    if content is None:
-                        return {}
-                
-                # Ensure default loading
-                except yaml.YAMLError:
-                    return None
-                
+        # Empty list catching
+        if len(compiler_tree) > 0:
+            return compiler_tree
+        
         return None
-
-    
-    @staticmethod
-    def load_configs(project_path: Path, filename: str = "clua.config.yaml") -> Union[dict, None]:
-        """Loads one or multiple user project config files and returns them into a dict
-        where the keys are the project directory names where the file is located (localized configs).
-
-        Note:
-            - Multiple localized config files.
-            - Applies default values if the all the config files are unavailable.
-
-        Args:
-            project_path (Path): The project CWD Path where to search the config file.
-            filename (str, optional): The config filename ("clua.config.yaml")
-
-        Returns:
-            Union[dict, None]: The loaded config file dict.
-        """
-        
-        # User project config file
-        result = Paths.search_by_filename(project_path, filename, True)
-
-        # Default config replacement
-        if result is None:
-            result = [Path.cwd().joinpath("src", "data", filename)]
-
-        res_dict = {} 
-        for path in result:
-            config_content = Loader.load_yaml(path)
-            
-            if config_content is not None:
-                res_dict[path.parent] = deepcopy(config_content)
-                
-        return res_dict
 
 
     @staticmethod
-    def load_diagnostics(filename: str = "diagnostics.yaml") -> Union[dict, None]:
-        """Loads the internal diagnostics YAML file.
-        
-        Note:
-            Raise an internal log if not found but do not close the compiler instance.
+    def load_diagnostic_messages(
+        compiler_tree: list[Path],
+        filename: str = "diagnostic_messages.yaml"
+    ) -> Union[dict, None]:
+        """_summary_
 
         Args:
-            filename (str, optional): The diagnostics YAML filename.
+            filename (str): _description_
 
         Returns:
-            Union[dict, None]: Contains all the diagnostics or None if not found.
+            Union[dict, None]: _description_
         """
         
-        # Internal diagnostics file
-        result = Paths.search_by_filename(Path.cwd(), filename, True)
+        diagnostic_messages = Files.load_yaml_from_tree(compiler_tree, filename, False)
         
-        if result is None:
-            Logger.custom_log(
-                Logger.LogTypes.C_FILE_NOT_FOUND,
-                "Diagnostics are unavailable, diagnostics original file not found.", 
-                True
-            )
-        elif isinstance(result, list):
-            return Loader.load_yaml(result[0])
-            
+        if diagnostic_messages is not None:
+            return diagnostic_messages
+        
         return None
+        
+                    
+    @staticmethod
+    def load_project_tree(project_path: Path) -> Union[list[Path], None]:
+        """_summary_
+        """
+
+
+    @staticmethod
+    def load_config_files() -> Union[list[Path], None]:
+        """_summary_
+        """
+
+
+    @staticmethod
+    def loader():
+        """Project/Compiler loading global wrapper.
+        
+        Ordering:
+            - Load Compiler Tree.
+            - Load Diagnostic Messages.
+            - Load Project Tree.
+            - Load Config Files.
+            
+        Returns:
+            Cache.Compiler/Cache.Project: Global cached variables.
+        """
+        
+        # DPC103 DPC104
+        data_path = Path(__file__).parent
+
+        if Paths.is_dir_path_valid(data_path):
+            compiler_tree = Loader.load_compiler_tree(data_path)
+            
+            if compiler_tree is not None:
+                diagnostic_messages = Loader.load_diagnostic_messages(compiler_tree)
+                
+                if diagnostic_messages is not None:
+                    Cache.Compiler.data["diagnostic_messages"] = diagnostic_messages
