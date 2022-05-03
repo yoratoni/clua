@@ -5,7 +5,7 @@
 - Tokenize & Parse (converts text to a syntax tree)
 - Binder (converts identifiers in syntax tree to symbols)
 - Type Check (use binder & syntax tree to look for issues in code)
-- Transform (changes the syntax tree to match cluaconfig options)
+- Transform (changes the syntax tree to match clua.config options)
 - Emit (prints the syntax tree into native lua files)
 
 

@@ -1,4 +1,4 @@
 # DPC101
-class Logger:
+class Debugger:
     class Types:
         pass

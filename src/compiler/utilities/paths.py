@@ -5,19 +5,21 @@ from pathlib import Path
 class Paths:
     @staticmethod
     def is_file_path_valid(file_path: Path, extension: str = None) -> bool:
-        """Returns True if a path led to a valid file.
+        """Returns True if a path to a valid file.
         """
         
-        if file_path is not None and file_path.exists() and file_path.is_file():
-            if (extension is None) or (extension is not None and file_path.suffix() == extension):
-                return True
+        general_validity = file_path is not None and file_path.exists() and file_path.is_file()
+        extension_validity = extension is not None and file_path.suffix == extension
+        
+        if general_validity and ((extension is None) ^ extension_validity):
+            return True
         
         return False
     
     
     @staticmethod
     def is_dir_path_valid(dir_path: Path) -> bool:
-        """Returns True if a path led to a valid directory.
+        """Returns True if a path leads to a valid directory.
         """
         
         if dir_path is not None and dir_path.exists() and dir_path.is_dir():
@@ -27,7 +29,10 @@ class Paths:
     
 
     @staticmethod
-    def get_directory_tree(dir_path: Path, include_child_dirs: bool) -> Generator[Path, None, None]:
+    def get_directory_tree(
+        dir_path: Path,
+        include_child_dirs: bool
+    ) -> Generator[Path, None, None]:
         """Returns a directory tree depending on the recursive parameter (glob or iterdir).
 
         Args:
@@ -39,37 +44,43 @@ class Paths:
         """
         
         if not include_child_dirs:
-            dir_tree = dir_path.iterdir()
-        else:
-            # Universal pattern including all files
-            dir_tree = dir_path.glob("**/*")
-            
-        return dir_tree
-    
+            return dir_path.iterdir()
+
+        # Universal pattern including all files
+        return dir_path.glob("**/*")
+
 
     @staticmethod
-    def search_path_in_tree_by_name(tree: list[Path], name: str) -> Union[Path, None]:
-        """Search for a path where the last component have a certain name.
-        Acts as a simple research, only the first valid path is returned.
+    def search_paths_in_tree_by_name(tree: list[Path], name: str) -> Union[list[Path], None]:
+        """Search for one or multiple paths where the last component have a certain name.
         
         Args:
             tree (list[Path]): The tree where to search.
             name (str): The name to search, note that this field is case-sensitive.
             
         Returns: 
-            Union[Path, None]: The path where the last component is the name.
+            Union[list[Path], None]: Paths where the last component is equal to the name parameter,
+                or None if the tree is invalid.
         """
+        
+        paths = []
         
         if tree is not None:
             for path in tree:
                 if path.name == name:
-                    return path
-            
+                    paths.append(path)
+
+            return paths
+        
         return None
 
     
     @staticmethod
-    def search_by_extensions(dir_path: Path, extensions: set[str], include_child_dirs: bool) -> Union[list[Path], None]:
+    def search_by_extensions(
+        dir_path: Path,
+        extensions: set[str],
+        include_child_dirs: bool
+    ) -> Union[list[Path], None]:
         """Returns the path of all the files that matches one of the listed extensions.
         
         Args:
