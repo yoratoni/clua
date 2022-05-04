@@ -37,10 +37,10 @@ class Paths:
 
         Args:
             dir_path (Path): The path of the directory to generate the tree of.
-            include_child_dirs (bool): Recursive research inside the dir (multiple layers).
+            include_child_dirs (bool): Recursive research inside the directory (multiple layers).
 
         Returns:
-            Generator[Path]: A generator object that contains the list of dir paths.
+            Generator[Path]: A generator object that contains the list of directory paths.
         """
         
         if not include_child_dirs:
@@ -74,6 +74,32 @@ class Paths:
         
         return None
 
+
+    @staticmethod
+    def search_paths_in_tree_by_extension(tree: list[Path], extension: str) -> Union[list[Path], None]:
+        """Search for one or multiple paths where the last component is a file with a certain extension.
+        
+        Args:
+            tree (list[Path]): The tree where to search.
+            extension (str): The extension/suffix of the files to include.
+            
+        Returns: 
+            Union[list[Path], None]: Paths where the last component is a file
+                with a suffix equal to the extension parameter,
+                or None if the tree is invalid.
+        """
+        
+        paths = []
+        
+        if tree is not None:
+            for path in tree:
+                if Paths.is_file_path_valid(path, extension):
+                    paths.append(path)
+
+            return paths
+        
+        return None
+
     
     @staticmethod
     def search_by_extensions(
@@ -86,7 +112,7 @@ class Paths:
         Args:
             dir_path (Path): The path of the directory where to search.
             extensions (set[str]): A filter of extensions (included).
-            include_child_dirs (bool): Recursive research inside the dir (multiple layers).
+            include_child_dirs (bool): Recursive research inside the directory (multiple layers).
 
         Returns:
             Union[list[Path], None]: Paths that matches the extensions filter,
@@ -102,8 +128,8 @@ class Paths:
             return result
             
         return None
-    
-    
+
+
     @staticmethod
     def search_by_name(dir_path: Path, name: str, include_child_dirs: bool) -> Union[list[Path], None]:
         """Returns the path of all the files/directories that have this name.
@@ -111,7 +137,7 @@ class Paths:
         Args:
             dir_path (Path): The path of the directory where to search.
             name (str): The name of the file/directory to search the path of.
-            include_child_dirs (bool): Recursive research inside the dir (multiple layers).
+            include_child_dirs (bool): Recursive research inside the directory (multiple layers).
 
         Returns:
             Union[list[Path], None]: Path of the files that matches the filename,
@@ -126,4 +152,25 @@ class Paths:
             
             return result
             
+        return None
+    
+    
+    @staticmethod
+    def clua_paths_organizer(project_tree: list[Path]) -> Union[list[Path], None]:
+        """Get the path of all the valid clua files and sorts them by directory depth.
+
+        Args:
+            project_tree (list[Path]): The loaded user project tree.
+
+        Returns:
+            Union[list[Path], None]: A directory depth sorted list of clua file paths.
+        """
+        
+        unsorted_paths = Paths.search_paths_in_tree_by_extension(project_tree, ".clua")
+        
+        # General output verification
+        if isinstance(unsorted_paths, list) and len(unsorted_paths) > 0:
+            # Reversed Stem sorting (directory depth optimization)
+            return sorted(unsorted_paths, key=lambda i: i.stem, reverse=True)
+        
         return None

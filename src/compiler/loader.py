@@ -1,7 +1,5 @@
-from regex import F
 from compiler import Paths, Files, Cache
 
-from copy import deepcopy
 from typing import Generator, Union
 from pathlib import Path
 
@@ -10,17 +8,22 @@ class Loader:
     @staticmethod
     def load_compiler_tree(
         data_dir_path: Path,
-        included_extensions: list[str] = [".yaml"]
+        included_extensions: list[str] = None
     ) -> Union[list[Path], None]:
         """Loads the compiler tree with whitelisted file extensions.
 
         Args:
             data_dir_path (Path): Path to the data directory.
             included_extensions (list[str], optional): File extensions included into the tree.
+                Defaults to a list -> [".yaml"].
 
         Returns:
             list[Path]: The result list of paths after the scanning of the compiler directory.
         """
+        
+        # Default arg value can't be a mutable object
+        if included_extensions is None:
+            included_extensions = [".yaml"]
 
         # Data directory research
         compiler_tree = Paths.search_by_extensions(data_dir_path, included_extensions, True)
@@ -35,34 +38,30 @@ class Loader:
     @staticmethod
     def load_compiler_data(
         compiler_tree: list[Path],
-        diagnostic_messages_filename: str = "diagnostic_messages.yaml",
-        default_config_filename: str = "clua.config.yaml"
-    ) -> Union[dict[dict], None]:
+        data_filenames: list[str]
+    ) -> dict[Union[dict, None]]:
         """Loads the YAML files that contains the diagnostic messages used by the debugger
         and the default config file of the compiler from the loaded compiler tree.
 
         Args:
             compiler_tree (list[Path]): The loaded compiler tree.
-            diagnostic_messages_filename (str, optional): The name of the diagnostic messages file.
-            default_config_filename (str, optional): The name of the default config file.
+            data_filenames (list[str]): The name of the files to load into loaded_data.
             
         Returns:
-            Union[dict[dict], None]: Inside the main dict, the keys are the filenames,
-                and the values are the file contents formatted as dicts,
+            dict[Union[dict, None]]: Inside the main dict, the keys are the filenames,
+                and the values are the files content formatted as dicts,
                 or None if file not found/YAML error.
         """
         
         loaded_data = {}
-        diagnostic_messages = Files.load_yaml_from_compiler_tree(compiler_tree, diagnostic_messages_filename, -1)
-        default_config = Files.load_yaml_from_compiler_tree(compiler_tree, default_config_filename, -1)
         
-        if diagnostic_messages is not None and default_config is not None:
-            loaded_data[diagnostic_messages_filename] = diagnostic_messages
-            loaded_data[default_config_filename] = default_config
-        
-            return loaded_data
-
-        return None
+        for filename in data_filenames:
+            content = Files.load_yaml_from_compiler_tree(compiler_tree, filename)
+            
+            if content is not None:
+                loaded_data[filename] = content
+                
+        return loaded_data
 
 
     @staticmethod
@@ -108,8 +107,9 @@ class Loader:
                 the values are their dict formatted content.
         """
 
+        # DPC102
         # Load the content of all the found config files
-        return Files.load_yaml_from_tree(project_tree, filename)
+        return Files.load_multiple_yaml_from_tree(project_tree, filename)
 
 
     @staticmethod
@@ -136,9 +136,13 @@ class Loader:
             compiler_tree = Loader.load_compiler_tree(data_path)
             
             if compiler_tree is not None:
+                # List of filenames used to load the compiler data (src/compiler/data)
+                data_filenames = ["diagnostic_messages.yaml", "clua.config.yaml"]
+                
                 Cache.Compiler.compiler_tree = compiler_tree
-                Cache.Compiler.loaded_data = Loader.load_compiler_data(compiler_tree)
+                Cache.Compiler.loaded_data = Loader.load_compiler_data(compiler_tree, data_filenames)
                 compiler_loading_pipeline_res = True
+
 
         # Project loading pipeline
         if Paths.is_dir_path_valid(project_dir_path):
@@ -146,8 +150,9 @@ class Loader:
             
             if project_tree is not None:
                 Cache.Project.project_tree = project_tree
+                Cache.Project.clua_files = Paths.clua_paths_organizer(project_tree)
                 Cache.Project.loaded_configs = Loader.load_project_configs(project_tree)
                 project_loading_pipeline_res = True
-        
+          
         return compiler_loading_pipeline_res and project_loading_pipeline_res
     

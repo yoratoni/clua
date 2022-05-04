@@ -1,8 +1,8 @@
 from compiler.utilities import Paths
 
 from copy import deepcopy
-from pathlib import Path
 from typing import Union
+from pathlib import Path
 
 import yaml
 
@@ -10,7 +10,7 @@ import yaml
 class Files:
     @staticmethod
     def load_yaml(file_path: Path, include_empty_file: bool = True) -> Union[dict, None]:
-        """Based on its path, loads a YAML file content into a dict.
+        """Loads the content of a YAML file and returns it as a formatted dict.
         
         Args:
             file_path (Path): The path of the YAML file to load.
@@ -19,7 +19,7 @@ class Files:
 
         Returns:
             Union[dict, None]: Content of the YAML file formatted as a dict,
-                or None if file not found/yaml error.
+                or None if file not found/YAML error.
         """
         
         if Paths.is_file_path_valid(file_path, ".yaml"):
@@ -42,7 +42,7 @@ class Files:
 
 
     @staticmethod
-    def load_yaml_from_tree(
+    def load_multiple_yaml_from_tree(
         tree: list[Path],
         filename: str
     ) -> Union[dict[dict], None]:
@@ -63,7 +63,7 @@ class Files:
 
         if isinstance(file_paths, list) and len(file_paths) > 0:
             for path in file_paths:
-                contents[path] = Files.load_yaml(path, True)
+                contents[path] = Files.load_yaml(path)
 
             # Secured dict by deep copy
             return deepcopy(contents)
@@ -93,7 +93,7 @@ class Files:
         compiler_file_paths = Paths.search_paths_in_tree_by_name(compiler_tree, filename)
         
         if isinstance(compiler_file_paths, list) and len(compiler_file_paths) > 0:
-            content = Files.load_yaml(compiler_file_paths[default_index], True)
+            content = Files.load_yaml(compiler_file_paths[default_index])
 
             # Secured dict by deep copy
             return deepcopy(content)
