@@ -17,7 +17,7 @@
 
 ## Scanner:
     Example: const msg: string = "Hello, world"
-    Separated with whitespaces, colons, semi-colons, colons.
+    Separated with whitespace, colons, semi-colons, colons.
 
     Diagnostics:
         Defines a bunch of rules/errors based on the correct syntax.

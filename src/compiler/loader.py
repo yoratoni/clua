@@ -124,14 +124,14 @@ class Loader:
             bool: True if everyting is correctly loaded.
         """
         
-        # Loading pipelines result
-        compiler_loading_pipeline_res = False
-        project_loading_pipeline_res = False
+        # Loading results
+        compiler_loading_res = False
+        project_loading_res = False
         
         # Compiler data relative path
         data_path = Path(__file__).parent
         
-        # Compiler loading pipeline
+        # Compiler loading part
         if Paths.is_dir_path_valid(data_path):
             compiler_tree = Loader.load_compiler_tree(data_path)
             
@@ -141,10 +141,10 @@ class Loader:
                 
                 Cache.Compiler.compiler_tree = compiler_tree
                 Cache.Compiler.loaded_data = Loader.load_compiler_data(compiler_tree, data_filenames)
-                compiler_loading_pipeline_res = True
+                compiler_loading_res = True
 
 
-        # Project loading pipeline
+        # Project loading part
         if Paths.is_dir_path_valid(project_dir_path):
             project_tree = Loader.load_project_tree(project_dir_path)
             
@@ -152,7 +152,7 @@ class Loader:
                 Cache.Project.project_tree = project_tree
                 Cache.Project.clua_files = Paths.clua_paths_organizer(project_tree)
                 Cache.Project.loaded_configs = Loader.load_project_configs(project_tree)
-                project_loading_pipeline_res = True
+                project_loading_res = True
           
-        return compiler_loading_pipeline_res and project_loading_pipeline_res
+        return compiler_loading_res and project_loading_res
     
