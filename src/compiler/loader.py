@@ -95,7 +95,7 @@ class Loader:
                 # Empty list catching
                 if len(project_tree) > 0:
                     return project_tree
-            
+                 
         return None
 
 

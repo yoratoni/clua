@@ -92,9 +92,13 @@ class Files:
                 or None if file not found/YAML error.
         """
         
-        compiler_file_paths = Paths.search_paths_in_tree_by_name(compiler_tree, filename)
+        compiler_file_paths: Optional[list[Path]] = Paths.search_paths_in_tree_by_name(
+            compiler_tree,
+            filename
+        )
         
         if isinstance(compiler_file_paths, list) and len(compiler_file_paths) > 0:
             return Files.load_yaml(compiler_file_paths[default_index])
         
         return None
+

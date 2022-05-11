@@ -5,25 +5,37 @@ from pathlib import Path
 class Paths:
     @staticmethod
     def is_file_path_valid(file_path: Path, extension: str = None) -> bool:
-        """Returns True if a path to a valid file."""
+        """(General method) Return True if a file path is valid + optional extension validity."""
         
-        general_validity = file_path is not None and file_path.exists() and file_path.is_file()
-        extension_validity = extension is not None and file_path.suffix == extension
+        if file_path is None:
+            return False
         
-        if general_validity and ((extension is None) ^ extension_validity):
-            return True
+        if not file_path.exists():
+            return False
         
-        return False
+        if not file_path.is_file():
+            return False
+        
+        if extension is not None and file_path.suffix != extension:
+            return False
+  
+        return True
 
 
     @staticmethod
     def is_dir_path_valid(dir_path: Path) -> bool:
-        """Returns True if a path leads to a valid directory."""
+        """(General method) Return True if a dir path is valid."""
         
-        if dir_path is not None and dir_path.exists() and dir_path.is_dir():
-            return True
+        if dir_path is None:
+            return False
         
-        return False
+        if not dir_path.exists():
+            return False
+        
+        if not dir_path.is_dir():
+            return False
+        
+        return True
 
 
     @staticmethod
