@@ -4,7 +4,7 @@ from pathlib import Path
 
 class Paths:
     @staticmethod
-    def is_file_path_valid(file_path: Path, extension: str = None) -> bool:
+    def is_file_path_valid(file_path: Path, extension: Optional[str] = None) -> bool:
         """(General method) Return True if a file path is valid + optional extension validity."""
         
         if file_path is None:
@@ -80,7 +80,7 @@ class Paths:
                     paths.append(path)
 
             return paths
-        
+
         return None
 
 
@@ -113,7 +113,7 @@ class Paths:
     @staticmethod
     def search_by_extensions(
         dir_path: Path,
-        extensions: set[str],
+        extensions: list[str],
         include_child_dirs: bool
     ) -> Optional[list[Path]]:
         """
@@ -121,7 +121,7 @@ class Paths:
         
         Args:
             dir_path (Path): The path of the directory where to search.
-            extensions (set[str]): A filter of extensions (included).
+            extensions (list[str]): A filter of extensions (included).
             include_child_dirs (bool): Recursive research inside the directory (multiple layers).
 
         Returns:
@@ -196,7 +196,7 @@ class Paths:
         )
         
         # General output verification
-        if isinstance(unsorted_paths, list) and len(unsorted_paths) > 0:
+        if unsorted_paths is not None and len(unsorted_paths) > 0:
             # Reversed Stem sorting (directory depth optimization)
             return sorted(unsorted_paths, key=lambda i: i.stem, reverse=True)
         

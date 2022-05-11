@@ -10,3 +10,7 @@
     ever, try to load them when the compiler walks inside the directory,
     maybe by trying to re-run the default part every time it enters a new directory.
     
+
+## DPC103:
+    Logging & sys.exit(1) are necessary for this main static method, thinks about adding them.
+    

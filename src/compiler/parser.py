@@ -1,4 +1,4 @@
-from compiler import Protocol
+from compiler import Register
 
 from pathlib import Path
 

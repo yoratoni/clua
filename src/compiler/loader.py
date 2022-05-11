@@ -1,14 +1,16 @@
 from compiler import Paths, Files, Cache
 
-from typing import Generator, Optional
+from typing import Dict, Any, Generator, Optional
 from pathlib import Path
+
+import sys
 
 
 class Loader:
     @staticmethod
-    def load_compiler_tree(
+    def __load_compiler_tree(
         data_dir_path: Path,
-        included_extensions: list[str] = None
+        included_extensions: Optional[list[str]] = None
     ) -> Optional[list[Path]]:
         """
         Loads the compiler tree with whitelisted file extensions.
@@ -35,14 +37,15 @@ class Loader:
         )
         
         # Empty list catching
-        return compiler_tree if len(compiler_tree) > 0 else None
+        if compiler_tree is not None:
+            return compiler_tree if len(compiler_tree) > 0 else None
 
 
     @staticmethod
-    def load_compiler_data(
+    def __load_compiler_data(
         compiler_tree: list[Path],
         data_filenames: list[str]
-    ) -> dict[Optional[dict]]:
+    ) -> Dict[str, Optional[Dict[str, Any]]]:
         """
         Loads the YAML files that contains the diagnostic messages used by the debugger
         and the default config file of the compiler from the loaded compiler tree.
@@ -52,15 +55,18 @@ class Loader:
             data_filenames (list[str]): The name of the files to load into loaded_data.
             
         Returns:
-            dict[Optional[dict]]: Inside the main dict, the keys are the filenames,
+            Dict[str, Optional[Dict[str, Any]]]: The keys are the filenames,
                 and the values are the files content formatted as dicts,
                 or None if file not found/YAML error.
         """
         
-        loaded_data = {}
+        loaded_data: Dict[str, Optional[Dict[str, Any]]] = {}
         
         for filename in data_filenames:
-            content: Optional[dict] = Files.load_yaml_from_compiler_tree(compiler_tree, filename)
+            content: Optional[Dict[str, Any]] = Files.load_yaml_from_compiler_tree(
+                compiler_tree,
+                filename
+            )
             
             if content is not None:
                 loaded_data[filename] = content
@@ -70,7 +76,7 @@ class Loader:
 
 
     @staticmethod
-    def load_project_tree(project_dir_path: Path) -> Optional[list[Path]]:
+    def __load_project_tree(project_dir_path: Path) -> Optional[list[Path]]:
         """
         Returns a tree that contains all the files and directories
         inside a project, including the child directories.
@@ -89,21 +95,20 @@ class Loader:
                 True
             )
             
-            if isinstance(project_tree_generator, Generator):
-                project_tree = list(project_tree_generator)
-                
-                # Empty list catching
-                if len(project_tree) > 0:
-                    return project_tree
+            project_tree = list(project_tree_generator)
+            
+            # Empty list catching
+            if len(project_tree) > 0:
+                return project_tree
                  
         return None
 
 
     @staticmethod
-    def load_project_configs(
+    def __load_project_configs(
         project_tree: list[Path],
         filename: str = "clua.config.yaml"
-    ) -> Optional[dict[dict]]:
+    ) -> Optional[Dict[Path, Any]]:
         """
         Loads all the found config files inside the user project.
         
@@ -112,7 +117,7 @@ class Loader:
             filename (str, optional): The default name of the clua config file.
             
         Returns:
-            Optional[dict[dict]]: Contains all the loaded config files,
+            Optional[Dict[Path, Any]]: Contains all the loaded config files,
                 the keys corresponds to the path of these files,
                 the values are their dict formatted content.
         """
@@ -123,47 +128,75 @@ class Loader:
 
 
     @staticmethod
-    def load(project_dir_path: Path) -> bool:
-        """
-        Loads the compiler tree/data and the project tree/configs,
-        acts as the main Loader wrapper.
+    def load_compiler(data_path: Path) -> bool:
+        """Loads the compiler data and saves them to the Cache (compiler sub-class).
 
         Args:
-            project_dir_path (Path): The path to the project directory.
+            data_path (Path): The path of the compiler data directory.
 
         Returns:
-            bool: True if everyting is correctly loaded.
+            bool: True if all the data are successfully loaded.
         """
         
-        # Loading results
-        compiler_loading_res = False
-        project_loading_res = False
-        
-        # Compiler data relative path
-        data_path = Path(__file__).parent
-        
-        # Compiler loading part
         if Paths.is_dir_path_valid(data_path):
-            compiler_tree = Loader.load_compiler_tree(data_path)
+            compiler_tree: Optional[list[Path]] = Loader.__load_compiler_tree(data_path)
             
             if compiler_tree is not None:
-                # List of filenames used to load the compiler data (src/compiler/data)
+                # List of filenames used to load the compiler data (compiler/data)
                 data_filenames = ["diagnostic_messages.yaml", "clua.config.yaml"]
                 
                 Cache.Compiler.compiler_tree = compiler_tree
-                Cache.Compiler.loaded_data = Loader.load_compiler_data(compiler_tree, data_filenames)
-                compiler_loading_res = True
+                Cache.Compiler.compiler_data = Loader.__load_compiler_data(
+                    compiler_tree,
+                    data_filenames
+                )
                 
-        # Project loading part
+                return True
+            
+        return False
+
+
+    @staticmethod
+    def load_project(project_dir_path: Path) -> bool:
+        """Loads the project directory data and saves them into the Cache (project sub-class).
+
+        Args:
+            project_dir_path (Path): The path of the project directory.
+
+        Returns:
+            bool: True if all the data are successfully loaded.
+        """
+
         if Paths.is_dir_path_valid(project_dir_path):
-            project_tree = Loader.load_project_tree(project_dir_path)
+            project_tree: Optional[list[Path]] = Loader.__load_project_tree(project_dir_path)
             
             if project_tree is not None:
                 Cache.Project.project_tree = project_tree
-                Cache.Project.clua_files = Paths.clua_paths_organizer(project_tree)
-                Cache.Project.loaded_configs = Loader.load_project_configs(project_tree)
-                project_loading_res = True
+                Cache.Project.clua_trace = Paths.clua_paths_organizer(project_tree)
+                Cache.Project.loaded_config_dicts = Loader.__load_project_configs(project_tree)
+                
+                return True
         
-        # Two loading part bool res
-        return compiler_loading_res and project_loading_res
+        return False
+
+
+    @staticmethod
+    def load(project_dir_path: Path):
+        """
+        Loads the compiler tree/data and the project tree/configs,
+        acts as the main Loader method..
+
+        Args:
+            project_dir_path (Path): The path of the project directory.
+        """
+        
+        # DPC103
+        data_path = Path(__file__).parent
+        
+        compiler_loading_result = Loader.load_compiler(data_path)
+        project_loading_result = Loader.load_project(data_path)
+                
+        if not compiler_loading_result or not project_loading_result:
+            sys.exit(1)
+
     
