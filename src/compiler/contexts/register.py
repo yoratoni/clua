@@ -15,7 +15,7 @@ class Register:
     cf_line_lengths: MutableSequence[int] = array("i")
     
     # -1 removes the first iteration supplement (0-Indexing)
-    cf_line_count: int = -1  
+    cf_line_number: int = -1  
     
     # Stores the currently processed line
     cf_line: str = ""
