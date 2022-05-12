@@ -114,15 +114,14 @@ class Operator:
             str: The line that have been read.
         """
         
-        # DPC105
         current_line = cf_object.readline()
-
-        # Overwrites the virtual pointer pos by the real pointer one
-        Operator.VirtualPointer.set_position(cf_object.tell())
         
+        # Overwrites the virtual pointer pos by the real one
+        Operator.VirtualPointer.set_position(cf_object.tell())
+
         # Updates cf line data
         Register.cf_line_lengths.append(len(current_line))
-        Register.cf_line_count += 1
-        
+        Register.cf_line_number += 1
+        Register.cf_line = current_line
+
         return current_line
-    
