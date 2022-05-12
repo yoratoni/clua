@@ -13,4 +13,11 @@
 
 ## DPC103:
     Logging & sys.exit(1) are necessary for this main static method, thinks about adding them.
-    
+
+
+## DPC104:
+    Use arrays instead of lists for basic data types.
+
+
+## DPC105:
+    One line files should be parsed differently (breaking reading by semi-colons).

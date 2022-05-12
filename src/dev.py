@@ -1,20 +1,30 @@
-from compiler import Paths, Cache, Loader, CluaFiles
+from compiler import Operator, Register, Loader, Cache
 from pathlib import Path
 
 
 def main():
-    example_dir_path = Path.joinpath(Path.cwd(), "tests", "clua")
-    example_file_path = Path.joinpath(example_dir_path, "dev.clua")
+    clua_files_dir_path = Path.joinpath(Path.cwd(), "tests", "clua_files")
+    # example_file_path = Path.joinpath(clua_files_dir_path, "mul_lines.clua")
 
 
-    example_file = CluaFiles.open_cf(example_file_path)
+    Loader.initialize(clua_files_dir_path)
+    print(Cache.Compiler.compiler_database)
+
+
+    # example_file = Operator.open_cf(example_file_path)
     
-    for i in range(5):
-        print(example_file.readline().strip())
-        print(f"Register pointer position: {CluaFiles.Pointer.get_register_pointer_pos()}")
-        print("****")
+    # curr_line = "."
+    
+    # while not Operator.cf_is_eof(curr_line):
+    #     print("****")
+    #     curr_line = Operator.cf_readline(example_file)
+    #     print(curr_line)
+    #     print(f"Line Count: {Register.cf_line_count}")
+    #     print(f"Line Lengths: {Register.cf_line_lengths}")
+    #     print(f"Register pointer position: {Operator.VirtualPointer.get_position()}")
+        
 
-    CluaFiles.close_cf(example_file)
+    # Operator.close_cf(example_file)
 
 
 if __name__ == "__main__":

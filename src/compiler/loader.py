@@ -9,14 +9,14 @@ import sys
 class Loader:
     @staticmethod
     def __load_compiler_tree(
-        data_dir_path: Path,
+        compiler_dir_path: Path,
         included_extensions: Optional[list[str]] = None
     ) -> Optional[list[Path]]:
         """
         Loads the compiler tree with whitelisted file extensions.
 
         Args:
-            data_dir_path (Path): Path to the data directory.
+            compiler_dir_path (Path): The path of the main compiler directory.
             included_extensions (List[str], optional): File extensions included into the tree.
                 Defaults to a list -> [".yaml"].
 
@@ -26,12 +26,13 @@ class Loader:
         """
         
         # Default arg value can't be a mutable object
+        # Replaced by YAML extension (database main files)
         if included_extensions is None:
             included_extensions = [".yaml"]
 
         # Data directory research
         compiler_tree: Optional[list[Path]] = Paths.search_by_extensions(
-            data_dir_path,
+            compiler_dir_path,
             included_extensions,
             True
         )
@@ -128,25 +129,30 @@ class Loader:
 
 
     @staticmethod
-    def load_compiler(data_path: Path) -> bool:
-        """Loads the compiler data and saves them to the Cache (compiler sub-class).
+    def __load_compiler(compiler_dir_path: Path) -> bool:
+        """Loads the compiler data and saves them to the Cache.
 
         Args:
-            data_path (Path): The path of the compiler data directory.
+            compiler_dir_path (Path): The path of the main compiler directory.
 
         Returns:
             bool: True if all the data are successfully loaded.
         """
         
-        if Paths.is_dir_path_valid(data_path):
-            compiler_tree: Optional[list[Path]] = Loader.__load_compiler_tree(data_path)
+        if Paths.is_dir_path_valid(compiler_dir_path):
+            # Loads a general tree containing all the paths found inside the compiler directory
+            compiler_tree: Optional[list[Path]] = Loader.__load_compiler_tree(compiler_dir_path)
             
             if compiler_tree is not None:
                 # List of filenames used to load the compiler data (compiler/data)
-                data_filenames = ["diagnostic_messages.yaml", "clua.config.yaml"]
+                data_filenames = [
+                    "diagnostic_messages.yaml",
+                    "clua.config.yaml",
+                    "tokens.yaml"
+                ]
                 
                 Cache.Compiler.compiler_tree = compiler_tree
-                Cache.Compiler.compiler_data = Loader.__load_compiler_data(
+                Cache.Compiler.compiler_database = Loader.__load_compiler_data(
                     compiler_tree,
                     data_filenames
                 )
@@ -157,7 +163,7 @@ class Loader:
 
 
     @staticmethod
-    def load_project(project_dir_path: Path) -> bool:
+    def __load_project(project_dir_path: Path) -> bool:
         """Loads the project directory data and saves them into the Cache (project sub-class).
 
         Args:
@@ -181,9 +187,9 @@ class Loader:
 
 
     @staticmethod
-    def load(project_dir_path: Path):
+    def initialize(project_dir_path: Path):
         """
-        Loads the compiler tree/data and the project tree/configs,
+        Initialize the compiler tree/data and the project tree/configs,
         acts as the main Loader method..
 
         Args:
@@ -191,10 +197,10 @@ class Loader:
         """
         
         # DPC103
-        data_path = Path(__file__).parent
+        compiler_dir_path = Path(__file__).parent
         
-        compiler_loading_result = Loader.load_compiler(data_path)
-        project_loading_result = Loader.load_project(data_path)
+        compiler_loading_result = Loader.__load_compiler(compiler_dir_path)
+        project_loading_result = Loader.__load_project(project_dir_path)
                 
         if not compiler_loading_result or not project_loading_result:
             sys.exit(1)

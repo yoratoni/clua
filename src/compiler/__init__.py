@@ -1,10 +1,12 @@
-from compiler.utilities import Debugger
-from compiler.utilities import Paths
-from compiler.utilities import Files
+# type: ignore
+from .contexts import Cache
+from .contexts import Register
 
-from compiler.cache import Cache
-from compiler.loader import Loader
-from compiler.register import Register
-from compiler.clua_files import CluaFiles
-from compiler.scanner import Scanner
-from compiler.parser import Parser
+from .utilities import Debugger
+from .utilities import Paths
+from .utilities import Files
+
+from .loader import Loader
+from .operator import Operator
+from .scanner import Scanner
+from .parser import Parser

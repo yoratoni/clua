@@ -9,11 +9,12 @@ class Cache:
         # Globally stored compiler tree (list[Path])
         compiler_tree: Optional[list[Path]] = None
         
-        # Data loaded from the compiler data directory
-        # Generic YAML files used to store config/messages
-        compiler_data: Dict[str, Any] = {
+        # Data loaded from the compiler database directory
+        # Generic YAML files used to store compiler data
+        compiler_database: Dict[str, Any] = {
             "diagnostic_messages.yaml": None,
-            "clua.config.yaml": None
+            "clua.config.yaml": None,
+            "tokens.yaml": None
         }
 
 
