@@ -1,4 +1,4 @@
-from typing import Generator, Optional
+from typing import List, Generator, Optional
 from pathlib import Path
 
 
@@ -59,21 +59,21 @@ class Paths:
 
 
     @staticmethod
-    def search_paths_in_tree_by_name(tree: list[Path], name: str) -> Optional[list[Path]]:
+    def search_paths_in_tree_by_name(tree: List[Path], name: str) -> Optional[List[Path]]:
         """
         Search for one or multiple paths where the last component have a certain name.
         
         Args:
-            tree (list[Path]): The tree where to search.
+            tree (List[Path]): The tree where to search.
             name (str): The name to search, note that this field is case-sensitive.
             
         Returns: 
-            Optional[list[Path]]: Paths where the last component is equal to the name parameter
+            Optional[List[Path]]: Paths where the last component is equal to the name parameter
                 or None if the tree is invalid.
         """
         
         if tree is not None:
-            paths: list[Path] = []
+            paths: List[Path] = []
             
             for path in tree:
                 if path.name == name:
@@ -85,21 +85,21 @@ class Paths:
 
 
     @staticmethod
-    def search_paths_in_tree_by_extension(tree: list[Path], extension: str) -> Optional[list[Path]]:
+    def search_paths_in_tree_by_extension(tree: List[Path], extension: str) -> Optional[List[Path]]:
         """
         Search for one or multiple paths where the last component is a file with a certain extension.
         
         Args:
-            tree (list[Path]): The tree where to search.
+            tree (List[Path]): The tree where to search.
             extension (str): The extension/suffix of the files to include.
             
         Returns: 
-            Optional[list[Path]]: Paths where the last component is a file with a suffix equal
+            Optional[List[Path]]: Paths where the last component is a file with a suffix equal
                 to the extension parameter or None if the tree is invalid.
         """
         
         if tree is not None:
-            paths: list[Path] = []
+            paths: List[Path] = []
             
             for path in tree:
                 if Paths.is_file_path_valid(path, extension):
@@ -113,19 +113,19 @@ class Paths:
     @staticmethod
     def search_by_extensions(
         dir_path: Path,
-        extensions: list[str],
+        extensions: List[str],
         include_child_dirs: bool
-    ) -> Optional[list[Path]]:
+    ) -> Optional[List[Path]]:
         """
         Returns the path of all the files that matches one of the listed extensions.
         
         Args:
             dir_path (Path): The path of the directory where to search.
-            extensions (list[str]): A filter of extensions (included).
+            extensions (List[str]): A filter of extensions (included).
             include_child_dirs (bool): Recursive research inside the directory (multiple layers).
 
         Returns:
-            Optional[list[Path]]: Paths that matches the extensions filter,
+            Optional[List[Path]]: Paths that matches the extensions filter,
                 or None if the path is invalid.
         """
         
@@ -136,7 +136,7 @@ class Paths:
             )
 
             # Generate matching suffixes list
-            result: list[Path] = list(
+            result: List[Path] = list(
                 path.resolve() for path in dir_list
                 if path.suffix in extensions
             )
@@ -147,7 +147,7 @@ class Paths:
 
 
     @staticmethod
-    def search_by_name(dir_path: Path, name: str, include_child_dirs: bool) -> Optional[list[Path]]:
+    def search_by_name(dir_path: Path, name: str, include_child_dirs: bool) -> Optional[List[Path]]:
         """
         Returns the path of all the files/directories that have this name.
 
@@ -157,7 +157,7 @@ class Paths:
             include_child_dirs (bool): Recursive research inside the directory (multiple layers).
 
         Returns:
-            Optional[list[Path]]: Path of the files that matches the filename,
+            Optional[List[Path]]: Path of the files that matches the filename,
                 or None if the path is invalid.
         """
         
@@ -168,7 +168,7 @@ class Paths:
             )
 
             # Generate matching filenames list
-            result: list[Path] = list(
+            result: List[Path] = list(
                 path.resolve() for path in dir_list
                 if path.name == name
             )
@@ -179,18 +179,18 @@ class Paths:
     
     
     @staticmethod
-    def clua_paths_organizer(project_tree: list[Path]) -> Optional[list[Path]]:
+    def clua_paths_organizer(project_tree: List[Path]) -> Optional[List[Path]]:
         """
         Get the path of all the valid clua files and sorts them by directory depth.
 
         Args:
-            project_tree (list[Path]): The loaded user project tree.
+            project_tree (List[Path]): The loaded user project tree.
 
         Returns:
-            Optional[list[Path]]: A directory depth sorted list of clua file paths.
+            Optional[List[Path]]: A directory depth sorted list of clua file paths.
         """
         
-        unsorted_paths: Optional[list[Path]] = Paths.search_paths_in_tree_by_extension(
+        unsorted_paths: Optional[List[Path]] = Paths.search_paths_in_tree_by_extension(
             project_tree,
             ".clua"
         )

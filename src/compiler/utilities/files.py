@@ -1,6 +1,6 @@
-from compiler.utilities import Paths
+from . import Paths
 
-from typing import Any, Dict, cast, Optional
+from typing import List, Any, Dict, cast, Optional
 from pathlib import Path
 
 import yaml
@@ -46,7 +46,7 @@ class Files:
 
     @staticmethod
     def load_multiple_yaml_from_tree(
-        tree: list[Path],
+        tree: List[Path],
         filename: str
     ) -> Optional[Dict[Path, Any]]:
         """
@@ -54,7 +54,7 @@ class Files:
         allows to load all the files that have the same name.
 
         Args:
-            tree (list[Path]): The tree where to search for the YAML files.
+            tree (List[Path]): The tree where to search for the YAML files.
             filename (str): The name of the file(s) to load.
 
         Returns:
@@ -62,7 +62,7 @@ class Files:
                 the values are the dict formatted content of the file(s).
         """
         
-        file_paths: Optional[list[Path]] = Paths.search_paths_in_tree_by_name(tree, filename)
+        file_paths: Optional[List[Path]] = Paths.search_paths_in_tree_by_name(tree, filename)
         
         if file_paths is not None and len(file_paths) > 0:
             contents: Dict[Path, Any] = {
@@ -77,7 +77,7 @@ class Files:
     
     @staticmethod
     def load_yaml_from_compiler_tree(
-        compiler_tree: list[Path],
+        compiler_tree: List[Path],
         filename: str,
         default_index: int = -1
     ) -> Optional[Dict[str, Any]]:
@@ -85,7 +85,7 @@ class Files:
         Loads a unique YAML file from the compiler tree based on its filename.
 
         Args:
-            compiler_tree (list[Path]): The compiler tree.
+            compiler_tree (List[Path]): The compiler tree.
             filename (str): The name of the file to load.
             default_index (int, optional): If multiple files found, the default index to use,
                 note that -1 will always take the last file found.
@@ -95,7 +95,7 @@ class Files:
                 or None if file not found/YAML error.
         """
         
-        compiler_file_paths: Optional[list[Path]] = Paths.search_paths_in_tree_by_name(
+        compiler_file_paths: Optional[List[Path]] = Paths.search_paths_in_tree_by_name(
             compiler_tree,
             filename
         )
