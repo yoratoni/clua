@@ -5,5 +5,6 @@ from pathlib import Path
 
 
 class Scanner:
-    pass
-        
+    @staticmethod
+    def tokenize(input_line: str):
+        pass

@@ -1,26 +1,16 @@
-from compiler import Operator, Register, Loader, Cache
-from pathlib import Path
+from compiler import Scanner  # Operator, Register, Loader, Cache
+# from pathlib import Path
 
 
 def main():
-    clua_files_dir_path = Path.joinpath(Path.cwd(), "examples", "clua_files")
-    example_file_path = Path.joinpath(clua_files_dir_path, "mul_lines.clua")
+    # clua_files_dir_path = Path.joinpath(Path.cwd(), "examples", "clua_files")
+    # example_file_path = Path.joinpath(clua_files_dir_path, "mul_lines.clua")
 
 
-    example_file = Operator.open_cf(example_file_path)
-    
-    curr_line = "."
-    
-    while not Operator.cf_is_eof(curr_line):
-        print("****")
-        curr_line = Operator.cf_readline(example_file)
-        print(curr_line)
-        print(f"Line Count: {Register.cf_line_number}")
-        print(f"Line Lengths: {Register.cf_line_lengths}")
-        print(f"Register pointer position: {Operator.VirtualPointer.get_position()}")
-        
+    example_line = "constructor(model: String, doors: Number, isElectric: Boolean) {\n"
 
-    Operator.close_cf(example_file)
+
+
 
 
 if __name__ == "__main__":
